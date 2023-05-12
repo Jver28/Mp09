@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+        var openWeatherAppId = 'e35fe686c4abbcbd1e1722549598b25e',
+          openWeatherUrl = 'http://api.openweathermap.org/data/2.5/forecast'
+
+        var ciudad = function(tipoGrados) {
+            var Ciudad = $('#poblacion').val()
+            if (Ciudad && Ciudad != ''){
+                Ciudad = Ciudad.trim()
+                getData(openWeatherUrl, Ciudad, openWeatherAppId, tipoGrados)
+            }
+            else {
+                alert('Introduzca el nombre de la ciudad')
+            }
+        }
+
+        $(document).ready(function(){
+            $('.btn-metric').click(function() {
+                ciudad('metric')
+            })
+            $('.btn-imperial').click(function() {
+                ciudad('imperial')
+            })
+        })
+
+        function getData (url, nombrePoblacion, appId, tipoGrados) {
+            var request = $.ajax({
+                url: url,
+                dataType: 'jsonp',
+                data: {
+                    q: nombrePoblacion,
+                    appid: appId,
+                    units: tipoGrados
+                },
+                jsonpCallback: 'buscar',
+                type: 'GET'
+            }).fail(function(error){
+                console.error(error)
+                alert('Poblacion no encontrada')
+            })
+        }
+
+        function buscar (prevision) {
+            console.log(prevision)
+            var html = '',
+              nombrePoblacion = prevision.city.name,
+                country = prevision.city.country
+
+            html += '<h3> Previsió de temps per a '
+              + nombrePoblacion
+                + ', '
+                + country
+                + '</h3>'
+            prevision.list.forEach(function(previsionEntry, index, list){
+                html += '<p>'
+                  + previsionEntry.dt_txt
+                    + ': '
+                    + previsionEntry.main.temp
+                    + '</p>'
+            })
+
+            $('#log').html(html)
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="span4 offset 3">
+                <h2>Prediccion del tiempo</h2>
+                <p>Introducce la poblacion que desee</p>
+            </div>
+            <div class="span6  offset1">
+                <input class="span4" type="text" id="poblacion" value=""/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="span6 offset1">
+                <input type="button" class="btn-primary btn btn-metric" value="Grados Celsius"/>
+            <div class="span6 offset1">
+                <input type="button" class="btn-seconday btn btn-imperial" value="Grados Fahrenheit"/>
+            </div>
+            <div class="span3">
+                <p id="info"></p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="span6 offset1">
+                <div id="log"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <hr/>
+            <p></p>
+        </div>
+    </div>
+</body>
+</html>
